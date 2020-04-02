@@ -21,8 +21,8 @@ description: >
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "https://ds3mbc-snu.github.io" # the base hostname & protocol for your site
 cover: "/assets/header_image.jpg"
-logo: ""
-
+logo: 
+  
 # Build settings
 markdown: kramdown
 inter_post_navigation: false
