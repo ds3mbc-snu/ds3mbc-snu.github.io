@@ -1,0 +1,6 @@
+model_checkpoint_path: "conversation.ckpt-17800"
+all_model_checkpoint_paths: "conversation.ckpt-17600"
+all_model_checkpoint_paths: "conversation.ckpt-17650"
+all_model_checkpoint_paths: "conversation.ckpt-17700"
+all_model_checkpoint_paths: "conversation.ckpt-17750"
+all_model_checkpoint_paths: "conversation.ckpt-17800"
