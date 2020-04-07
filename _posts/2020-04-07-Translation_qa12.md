@@ -7,7 +7,7 @@ categories: 2020-1SME
 tags:	2020-1SME korQA bAbI
 ---
 
-먼저 data를 받았을 때 DataFrame으로 만들기 전의 처리를 합니다.
+먼저 data를 받았을 때 DataFrame으로 만들기 전의 처리를 한다.
 ```python
 import re
 
@@ -27,7 +27,7 @@ def data_sequencing(path):
     return data
 ```
 
-이제 `train_data`와 `test_data`를 가져오고 이를 DataFrame으로 나타냅니다.
+이제 `train_data`와 `test_data`를 가져오고 이를 DataFrame으로 나타내자.
 ```python
 train_data=data_sequencing('../bAbI/tasks_1-20_v1-2/en/qa12_conjunction_train.txt')
 test_data=data_sequencing('../bAbI/tasks_1-20_v1-2/en/qa12_conjunction_test.txt')
@@ -52,7 +52,7 @@ df_test[:10]
 |8|9|Where is Sandra?|hallway|8|
 |9|10|Mary and Sandra journeyed to the garden.|||
 
-이제 `keras`의 `Tokenizer`를 이용해 영어 단어들을 토큰화해줍니다.
+이제 `keras`의 `Tokenizer`를 이용해 영어 단어들을 토큰화해준다.
 ```python
 from keras.preprocessing.text import Tokenizer
 
@@ -61,9 +61,6 @@ tokenizer.fit_on_texts(df_train['Query'])
 
 tokenizer.word_index
 ```
-
-
-
 
     {'and': 1,
      'to': 2,
@@ -87,12 +84,11 @@ tokenizer.word_index
      'office.': 20}
 
 
-
-데이터의 특징 / QA12
-1. 한 query에 사람이 두 명 씩 나옴.  
-    : 문장 번역시 `name`을 길이가 2인 list로
+qa12 데이터의 특징
+1. 질문이 아닌 query에서는 사람이 둘씩, 질문인 query에서는 하나씩 나옴.
+  : 일단 다 하나의 list에 받고, 질문일 때(`tokenized[0] == 'where'`)와 아닐 때 나눠서 문장을 재구성.
 2. `back`은 `went back`의 형태로밖에 나타나지 않음  
-    : `went`를 봤을 시 뒷 단어를 보고 결정
+  : `went`를 봤을 시 뒷 단어를 보고 결정
 
 
 ```python
@@ -118,22 +114,14 @@ voca = {
         'office'  : '사무실'
     }
 }
-```
 
-
-```python
 from keras.preprocessing.text import text_to_word_sequence
 text_to_word_sequence(df_test['Query'][0])
 ```
+['john', 'and', 'mary', 'travelled', 'to', 'the', 'hallway']
 
-
-
-
-    ['john', 'and', 'mary', 'travelled', 'to', 'the', 'hallway']
-
-
-
-
+단어를 이어붙일 때 앞 단어의 종성에 따라 조사가 바뀐다.
+구글에서 [관련된 내용](https://github.com/myevan/pyjosa/blob/master/pyjosa.py)을 찾아서 참고함.
 ```python
 # 조사 변경
 # https://github.com/myevan/pyjosa/blob/master/pyjosa.py 참조
@@ -156,7 +144,7 @@ def josa(text, input):
     return(text+output)
 ```
 
-
+이제 DataFrame을 받아서 번역된 DataFrame을 돌려주는 함수를 만들자.
 ```python
 def data_translation(data):
 
@@ -192,15 +180,12 @@ def data_translation(data):
             answer_tr.append(answer)
        
     return query_tr,answer_tr
-```
-
-
-```python
+    
 train_tr=data_translation(df_train)
 test_tr=data_translation(df_test)
 ```
 
-
+이제 query와 answer의 번역은 끝났다. 원 데이터와 비교해서 index와 supporting을 채우고 csv로 저장해주자.
 ```python
 def data_reconstruction(original_data,translated_data):
     
@@ -212,23 +197,12 @@ def data_reconstruction(original_data,translated_data):
         data.append([index,query,answer,supporting])
                                                       
     return data
-```
 
-
-```python
 df_train_tr=pd.DataFrame(data_reconstruction(train_data,train_tr),
                          columns=['Index','Query','Answer','Supporting'])
 df_test_tr=pd.DataFrame(data_reconstruction(test_data,test_tr),
                         columns=['Index','Query','Answer','Supporting'])
-```
 
-
-```python
 df_train_tr.to_csv('./qa12_conjunction_train_kr.csv',index=False, encoding = 'utf-8-sig')
 df_test_tr.to_csv('./qa12_conjunction_test_kr.csv',index=False, encoding = 'utf-8-sig')
-```
-
-
-```python
-
 ```
