@@ -39,6 +39,7 @@ df_test=pd.DataFrame(test_data,columns=['Index','Query','Answer','Supporting'])
 
 df_test[:10]
 ```
+
 ||Index|Query|Answer|Supporting|
 |---|---|---|---|---|
 |0|1|John and Mary travelled to the hallway.|||
