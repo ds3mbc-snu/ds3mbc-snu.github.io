@@ -7,6 +7,7 @@ categories: 2020-1SME
 tags:	2020-1SME korQA bAbI
 ---
 
+먼저 data를 받았을 때 DataFrame으로 만들기 전의 처리를 합니다.
 ```python
 import re
 
@@ -16,22 +17,21 @@ def data_sequencing(path):
         for line in f.readlines():
             line=line.strip()
             index,context=line.split(' ', 1)
+            # 질문이 있는 행의 경우
             if '\t' in line:
                 query,answer,supporting=context.split('\t')
                 data.append([index,query,answer,supporting])
+            # 질문이 없는 행의 경우
             else:
                 data.append([index,context,'',''])
     return data
 ```
 
-
+이제 `train_data`와 `test_data`를 가져오고 이를 DataFrame으로 나타냅니다.
 ```python
 train_data=data_sequencing('../bAbI/tasks_1-20_v1-2/en/qa12_conjunction_train.txt')
 test_data=data_sequencing('../bAbI/tasks_1-20_v1-2/en/qa12_conjunction_test.txt')
-```
 
-
-```python
 import pandas as pd
 
 df_train=pd.DataFrame(train_data,columns=['Index','Query','Answer','Supporting'])
@@ -39,148 +39,26 @@ df_test=pd.DataFrame(test_data,columns=['Index','Query','Answer','Supporting'])
 
 df_test[:10]
 ```
+||Index|Query|Answer|Supporting|
+|---|---|---|---|---|
+|0|1|John and Mary travelled to the hallway.|||
+|1|2|Sandra and Mary journeyed to the bedroom.|||
+|2|3|Where is Mary?|bedroom|2|
+|3|4|Mary and Daniel travelled to the bathroom.|||
+|4|5|Daniel and Sandra journeyed to the office.|||
+|5|6|Where is Mary?|bathroom|4|
+|6|7|Daniel and Mary went to the bedroom.|||
+|7|8|Daniel and Sandra travelled to the hallway.|||
+|8|9|Where is Sandra?|hallway|8|
+|9|10|Mary and Sandra journeyed to the garden.|||
 
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Index</th>
-      <th>Query</th>
-      <th>Answer</th>
-      <th>Supporting</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>John and Mary travelled to the hallway.</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>Sandra and Mary journeyed to the bedroom.</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3</td>
-      <td>Where is Mary?</td>
-      <td>bedroom</td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4</td>
-      <td>Mary and Daniel travelled to the bathroom.</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>5</td>
-      <td>Daniel and Sandra journeyed to the office.</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>6</td>
-      <td>Where is Mary?</td>
-      <td>bathroom</td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>7</td>
-      <td>Daniel and Mary went to the bedroom.</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>8</td>
-      <td>Daniel and Sandra travelled to the hallway.</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>9</td>
-      <td>Where is Sandra?</td>
-      <td>hallway</td>
-      <td>8</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>10</td>
-      <td>Mary and Sandra journeyed to the garden.</td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
+이제 `keras`의 `Tokenizer`를 이용해 영어 단어들을 토큰화해줍니다.
 ```python
 from keras.preprocessing.text import Tokenizer
 
 tokenizer=Tokenizer(filters='!?"#$%&()*+,-/:;<=>@[\\]^_`{|}~\t\n')
 tokenizer.fit_on_texts(df_train['Query'])
-```
 
-    Using TensorFlow backend.
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorflow\python\framework\dtypes.py:516: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_qint8 = np.dtype([("qint8", np.int8, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorflow\python\framework\dtypes.py:517: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorflow\python\framework\dtypes.py:518: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_qint16 = np.dtype([("qint16", np.int16, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorflow\python\framework\dtypes.py:519: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorflow\python\framework\dtypes.py:520: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_qint32 = np.dtype([("qint32", np.int32, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorflow\python\framework\dtypes.py:525: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      np_resource = np.dtype([("resource", np.ubyte, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorboard\compat\tensorflow_stub\dtypes.py:541: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_qint8 = np.dtype([("qint8", np.int8, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorboard\compat\tensorflow_stub\dtypes.py:542: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorboard\compat\tensorflow_stub\dtypes.py:543: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_qint16 = np.dtype([("qint16", np.int16, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorboard\compat\tensorflow_stub\dtypes.py:544: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorboard\compat\tensorflow_stub\dtypes.py:545: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      _np_qint32 = np.dtype([("qint32", np.int32, 1)])
-    C:\WinPython37F\python-3.7.2.amd64\lib\site-packages\tensorboard\compat\tensorflow_stub\dtypes.py:550: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
-      np_resource = np.dtype([("resource", np.ubyte, 1)])
-    
-
-
-```python
 tokenizer.word_index
 ```
 
