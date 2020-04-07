@@ -1,0 +1,2 @@
+model_checkpoint_path: "C:\\WinPython37F\\notebooks\\TF-Keras_TEACHER\\QA_attention_BABI\\babi_model\\checkpoints\\model-step-40001"
+all_model_checkpoint_paths: "C:\\WinPython37F\\notebooks\\TF-Keras_TEACHER\\QA_attention_BABI\\babi_model\\checkpoints\\model-step-40001"

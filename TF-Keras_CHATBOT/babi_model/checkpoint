@@ -1,0 +1,2 @@
+model_checkpoint_path: "babi_modelnew.ckpt"
+all_model_checkpoint_paths: "babi_modelnew.ckpt"
