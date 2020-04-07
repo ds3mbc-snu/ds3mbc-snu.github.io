@@ -25,6 +25,10 @@ logo:
 
 # Build settings
 markdown: kramdown
+highliter: rouge
+sass:
+  sass_dir: _sass
+  style: compressed
 inter_post_navigation: false
 highlightjs_theme: "monokai-sublime"
 
